@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'">
+<title>創作ダッシュボード</title>
+<style>
+:root{--bg:#fff;--fg:#1f2328;--mut:#6b7280;--panel:#f5f6f8;--line:#e2e4e8;--acc:#2f6f5e;--acc2:#b9d8cf;--rest:#e6edf7;--on:#fff}
+@media (prefers-color-scheme:dark){:root{--bg:#16181b;--fg:#e8eaed;--mut:#9aa1ab;--panel:#202327;--line:#31353b;--acc:#5fb59d;--acc2:#2c4a42;--rest:#26303d;--on:#102019}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.6 system-ui,-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif}
+#app{max-width:760px;margin:0 auto;padding:16px}
+h1{font-size:18px;margin:0 0 4px}
+.sub{color:var(--mut);font-size:12px;margin-bottom:12px}
+.tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.tabs button,.nav button{border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:8px;padding:6px 12px;font:inherit;cursor:pointer}
+.tabs button.on,.seg button.on{background:var(--acc);color:var(--on);border-color:var(--acc)}
+.panel{display:none}.panel.on{display:block}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:16px}
+.tile{background:var(--panel);border-radius:10px;padding:10px 12px}
+.tile b{display:block;font-size:26px;line-height:1.2}
+.tile span{color:var(--mut);font-size:12px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin:8px 0}
+h2{font-size:15px;margin:0}
+.seg button{border:1px solid var(--line);background:var(--panel);color:var(--fg);padding:4px 12px;font:inherit;cursor:pointer}
+.seg button:first-child{border-radius:8px 0 0 8px}.seg button:last-child{border-radius:0 8px 8px 0}
+svg{display:block;max-width:100%}
+svg text{fill:var(--mut);font-size:11px}
+.bar-hi{fill:var(--acc)}.bar-lo{fill:var(--acc2)}
+.grid-l{stroke:var(--line)}.target{stroke:var(--mut);stroke-dasharray:4 3}
+.note{color:var(--mut);font-size:12px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal .h{text-align:center;color:var(--mut);font-size:11px}
+.cell{min-height:52px;border-radius:6px;padding:3px 4px;font-size:12px;border:1px solid transparent;cursor:pointer;text-align:left;background:none;color:var(--fg);font-family:inherit;overflow:hidden}
+.cell.blank{cursor:default}
+.cell.on{background:var(--acc);color:var(--on)}
+.cell.rest{background:repeating-linear-gradient(45deg,var(--rest),var(--rest) 4px,transparent 4px,transparent 8px)}
+.cell.unreg{background:var(--panel);color:var(--mut)}
+.cell.today{border-color:var(--fg)}
+.cell small{display:block;font-size:10px;line-height:1.2;opacity:.9;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--mut);margin:8px 0}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:4px}
+.detail{background:var(--panel);border-radius:10px;padding:10px 12px;margin-top:10px;min-height:48px}
+.card{background:var(--panel);border-radius:10px;padding:12px;margin-bottom:10px}
+.card h3{margin:0 0 2px;font-size:15px}
+.chip{display:inline-block;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:0 8px;font-size:12px;margin:0 4px 0 0}
+ul{margin:6px 0 0;padding-left:0;list-style:none}
+li{padding:3px 0;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:space-between}
+li.done{color:var(--mut);text-decoration:line-through}
+.empty{color:var(--mut);padding:12px 0}
+input[type=range]{vertical-align:middle}
+</style>
+</head>
+<body>
+<div id="app">
+  <h1>創作ダッシュボード</h1>
+  <div class="sub" id="sub"></div>
+  <div class="tabs" id="tabs">
+    <button data-tab="p" class="on">進捗</button>
+    <button data-tab="c">カレンダー</button>
+    <button data-tab="e">イベント</button>
+    <button data-tab="t">今後のタスク</button>
+  </div>
+
+  <section class="panel on" id="p">
+    <div class="tiles" id="tiles"></div>
+    <div class="row">
+      <h2 id="ctitle">週ごとの進捗あり日数</h2>
+      <div class="seg" id="mode"><button data-m="w" class="on">週別</button><button data-m="m">月別</button></div>
+    </div>
+    <div class="row" id="slrow"><label class="note">表示する週数 <input type="range" id="sl" min="4" max="12" value="8"> <span id="slv">直近 8 週</span></label></div>
+    <div id="chart"></div>
+    <p class="note" id="cnote"></p>
+  </section>
+
+  <section class="panel" id="c">
+    <div class="row nav">
+      <button id="prev">←</button><b id="cmonth"></b><button id="next">→</button><button id="now">今月</button>
+    </div>
+    <div class="cal" id="cal"></div>
+    <div class="legend">
+      <span><i style="background:var(--acc)"></i>進捗あり</span>
+      <span><i style="background:var(--rest)"></i>休み</span>
+      <span><i style="background:var(--panel)"></i>未登録</span>
+    </div>
+    <div class="detail" id="detail">日付を選ぶと、その日の内容が表示されます。</div>
+  </section>
+
+  <section class="panel" id="e"><div id="events"></div></section>
+
+  <section class="panel" id="t">
+    <div id="tasks"></div>
+    <div class="row nav"><button id="tprev">← 前</button><span class="note" id="tinfo"></span><button id="tnext">次 →</button></div>
+  </section>
+</div>
+
+<script>
+(function () {
+"use strict";
+var D = "__DATA__";
+var S = D.settings || {};
+var TH = S.weekly_threshold || 3;
+var DONE = S.done_values || ["完了", "完了！"];
+var PAGE = S.tasks_page_size || 10;
+var DAY = 86400000;
+
+function p2(n) { return n < 10 ? "0" + n : "" + n; }
+function pd(s) { var a = s.split("-"); return Date.UTC(+a[0], +a[1] - 1, +a[2]); }
+function fd(ms) { var d = new Date(ms); return d.getUTCFullYear() + "-" + p2(d.getUTCMonth() + 1) + "-" + p2(d.getUTCDate()); }
+function el(t, c, x) { var e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; }
+function clear(e) { while (e.firstChild) e.removeChild(e.firstChild); }
+function $(id) { return document.getElementById(id); }
+
+var todayS = D.ctx.asof, today = pd(todayS);
+/* 同じ日に行が複数あっても「1 日 = 1 回」で数える。
+   その日の代表の状態は 進捗あり > 休み > その他 の優先順。 */
+var RANK = { "進捗あり": 3, "休み": 2 };
+var byDate = {}, rowsOf = {};
+D.daily.forEach(function (r) {
+  (rowsOf[r.date] = rowsOf[r.date] || []).push(r);
+  var cur = byDate[r.date];
+  if (!cur || (RANK[r.state] || 1) > (RANK[cur.state] || 1)) byDate[r.date] = r;
+});
+var days = Object.keys(byDate).map(function (k) { return byDate[k]; });
+function isOn(ds) { var r = byDate[ds]; return !!r && r.state === "進捗あり"; }
+function wstart(ms) {
+  var d = new Date(ms).getUTCDay();
+  return ms - (S.week_start === "sunday" ? d : (d + 6) % 7) * DAY;
+}
+function isDone(t) { return DONE.indexOf(t.status) >= 0; }
+
+(function () {
+  var c = D.ctx.counts, s = "最終更新: " + todayS + (D.ctx.sample ? "（ダミーデータ）" : "");
+  if (c) s += "　日次 " + c.daily_days + " 日（" + c.daily_rows + " 件）・イベント " + c.events + "・タスク " + c.tasks;
+  if (!D.ctx.sample) s += "　※非公開で使ってください";
+  $("sub").textContent = s;
+})();
+
+/* ---- タブ ---- */
+var tabs = document.querySelectorAll("#tabs button");
+Array.prototype.forEach.call(tabs, function (b) {
+  b.addEventListener("click", function () {
+    Array.prototype.forEach.call(tabs, function (x) { x.classList.toggle("on", x === b); });
+    ["p", "c", "e", "t"].forEach(function (id) { $(id).classList.toggle("on", id === b.getAttribute("data-tab")); });
+  });
+});
+
+/* ---- 進捗タブ ---- */
+function tiles() {
+  var box = $("tiles"); clear(box);
+  var ws = wstart(today), wk = 0, i;
+  for (i = 0; i < 7; i++) { var t = ws + i * DAY; if (t <= today && isOn(fd(t))) wk++; }
+  var ym = todayS.slice(0, 7), yr = todayS.slice(0, 4), mo = 0, yo = 0, rest = 0, unreg = 0;
+  days.forEach(function (r) {
+    if (r.state === "進捗あり") { if (r.date.slice(0, 4) === yr) yo++; if (r.date.slice(0, 7) === ym) mo++; }
+    else if (r.state === "休み" && r.date.slice(0, 7) === ym) rest++;
+  });
+  var dn = +todayS.slice(8, 10);
+  for (i = 1; i <= dn; i++) { if (!byDate[ym + "-" + p2(i)]) unreg++; }
+  [["今週の進捗あり", wk + " 日", "目安 週" + TH + "日"], ["今月の進捗あり", mo + " 日", "休み " + rest + " 日・未登録 " + unreg + " 日"],
+   ["今年の進捗あり", yo + " 日", ""]].forEach(function (x) {
+    var d = el("div", "tile"); d.appendChild(el("span", "", x[0])); d.appendChild(el("b", "", x[1])); d.appendChild(el("span", "", x[2])); box.appendChild(d);
+  });
+}
+
+var NS = "http://www.w3.org/2000/svg";
+function sv(t, a, x) { var e = document.createElementNS(NS, t); for (var k in a) e.setAttribute(k, a[k]); if (x != null) e.textContent = x; return e; }
+function chart(items, max, target) {
+  var box = $("chart"); clear(box);
+  var W = 640, H = 220, L = 28, B = 28, T = 14, n = items.length, bw = (W - L) / n, ph = H - B - T;
+  var svg = sv("svg", { viewBox: "0 0 " + W + " " + H, width: "100%", role: "img", "aria-label": "進捗あり日数のグラフ" });
+  var step = max > 10 ? Math.ceil(max / 5) : 1, g;
+  for (g = 0; g <= max; g += step) {
+    var y = T + ph - ph * g / max;
+    svg.appendChild(sv("line", { x1: L, x2: W, y1: y, y2: y, "class": "grid-l" }));
+    svg.appendChild(sv("text", { x: L - 6, y: y + 4, "text-anchor": "end" }, g));
+  }
+  var skip = n > 8 ? 2 : 1;
+  items.forEach(function (it, i) {
+    var h = ph * it.v / max, x = L + i * bw + bw * 0.18;
+    svg.appendChild(sv("rect", { x: x, y: T + ph - h, width: bw * 0.64, height: h, rx: 2, "class": target != null && it.v >= target ? "bar-hi" : "bar-lo" }));
+    if (it.v > 0) svg.appendChild(sv("text", { x: x + bw * 0.32, y: T + ph - h - 3, "text-anchor": "middle" }, it.v));
+    if (i % skip === 0) svg.appendChild(sv("text", { x: x + bw * 0.32, y: H - 8, "text-anchor": "middle" }, it.l));
+  });
+  if (target != null) {
+    var ty = T + ph - ph * target / max;
+    svg.appendChild(sv("line", { x1: L, x2: W, y1: ty, y2: ty, "class": "target" }));
+  }
+  box.appendChild(svg);
+}
+var mode = "w", weeks = 8;
+function drawChart() {
+  $("ctitle").textContent = mode === "w" ? "週ごとの進捗あり日数" : "月ごとの進捗あり日数";
+  $("slrow").style.display = mode === "w" ? "" : "none";
+  var items = [], i, max;
+  if (mode === "w") {
+    var w0 = wstart(today) - (weeks - 1) * 7 * DAY;
+    for (i = 0; i < weeks; i++) {
+      var s = w0 + i * 7 * DAY, c = 0, j;
+      for (j = 0; j < 7; j++) { if (s + j * DAY <= today && isOn(fd(s + j * DAY))) c++; }
+      items.push({ l: fd(s).slice(5).replace("-", "/"), v: c });
+    }
+    chart(items, 7, TH);
+    $("cnote").textContent = "縦軸は 0〜7 日。点線は目安（週 " + TH + " 日）で、届いた週は濃い色です。";
+  } else {
+    var y = +todayS.slice(0, 4), m = +todayS.slice(5, 7), keys = [];
+    for (i = 0; i < 12; i++) { keys.unshift(y + "-" + p2(m)); m--; if (m === 0) { m = 12; y--; } }
+    var cnt = {};
+    days.forEach(function (r) { if (r.state === "進捗あり") { var k = r.date.slice(0, 7); cnt[k] = (cnt[k] || 0) + 1; } });
+    var mx = 5;
+    keys.forEach(function (k) { var v = cnt[k] || 0; if (v > mx) mx = v; items.push({ l: k.slice(2).replace("-", "/"), v: v }); });
+    chart(items, mx, null);
+    $("cnote").textContent = "直近 12 か月。数えるのは「進捗あり」の日だけです。";
+  }
+}
+$("mode").addEventListener("click", function (e) {
+  var m = e.target.getAttribute && e.target.getAttribute("data-m"); if (!m) return;
+  mode = m;
+  Array.prototype.forEach.call(document.querySelectorAll("#mode button"), function (b) { b.classList.toggle("on", b === e.target); });
+  drawChart();
+});
+$("sl").addEventListener("input", function () { weeks = +this.value; $("slv").textContent = "直近 " + weeks + " 週"; drawChart(); });
+
+/* ---- カレンダー ---- */
+var view = todayS.slice(0, 7);
+function mIndex(ym) { return +ym.slice(0, 4) * 12 + (+ym.slice(5, 7) - 1); }
+function shift(ym, d) { var i = mIndex(ym) + d; return Math.floor(i / 12) + "-" + p2(i % 12 + 1); }
+var dueBy = {};
+D.tasks.forEach(function (t) { if (t.due && !isDone(t)) (dueBy[t.due] = dueBy[t.due] || []).push(t); });
+function eventsOn(ds) {
+  return D.events.filter(function (e) { return e.date && e.date <= ds && ds <= (e.date_end || e.date); });
+}
+function drawCal() {
+  var y = +view.slice(0, 4), m = +view.slice(5, 7);
+  $("cmonth").textContent = y + "年" + m + "月";
+  var box = $("cal"); clear(box);
+  var heads = S.week_start === "sunday" ? ["日", "月", "火", "水", "木", "金", "土"] : ["月", "火", "水", "木", "金", "土", "日"];
+  heads.forEach(function (h) { box.appendChild(el("div", "h", h)); });
+  var first = Date.UTC(y, m - 1, 1), wd = new Date(first).getUTCDay();
+  var lead = S.week_start === "sunday" ? wd : (wd + 6) % 7;
+  var dim = new Date(Date.UTC(y, m, 0)).getUTCDate(), i;
+  for (i = 0; i < lead; i++) box.appendChild(el("div", "cell blank"));
+  for (i = 1; i <= dim; i++) (function (day) {
+    var ds = view + "-" + p2(day), r = byDate[ds], cls = "cell";
+    if (r && r.state === "進捗あり") cls += " on";
+    else if (r && r.state === "休み") cls += " rest";
+    else if (!r && ds <= todayS) cls += " unreg";
+    if (ds === todayS) cls += " today";
+    var b = el("button", cls);
+    b.appendChild(document.createTextNode(String(day)));
+    var ev = eventsOn(ds);
+    if (ev.length) b.appendChild(el("small", "", "◆" + ev[0].name));
+    if (dueBy[ds]) b.appendChild(el("small", "", "□ 期限 " + dueBy[ds].length));
+    b.addEventListener("click", function () { showDay(ds); });
+    box.appendChild(b);
+  })(i);
+}
+function showDay(ds) {
+  var d = $("detail"); clear(d);
+  d.appendChild(el("b", "", ds));
+  var r = byDate[ds];
+  d.appendChild(el("div", "", r ? "状態: " + r.state : (ds <= todayS ? "未登録" : "これから")));
+  (rowsOf[ds] || []).forEach(function (x) {   /* 同じ日の行はすべて表示 */
+    if (x.kind) d.appendChild(el("div", "", "種別: " + x.kind));
+    if (x.work) d.appendChild(el("div", "", "作品: " + x.work));
+    if (x.note) d.appendChild(el("div", "", x.note));
+  });
+  eventsOn(ds).forEach(function (e) { d.appendChild(el("div", "", "◆ イベント: " + e.name)); });
+  (dueBy[ds] || []).forEach(function (t) { d.appendChild(el("div", "", "□ 期限: " + t.name)); });
+}
+$("prev").addEventListener("click", function () { if (mIndex(view) > mIndex(todayS.slice(0, 7)) - 12) { view = shift(view, -1); drawCal(); } });
+$("next").addEventListener("click", function () { if (mIndex(view) < mIndex(todayS.slice(0, 7)) + 12) { view = shift(view, 1); drawCal(); } });
+$("now").addEventListener("click", function () { view = todayS.slice(0, 7); drawCal(); });
+
+/* ---- イベント ---- */
+function link(parent, text, url) {
+  if (url && /^https?:\/\//.test(url)) {
+    var a = el("a", "", text); a.href = url; a.target = "_blank"; a.rel = "noopener noreferrer"; parent.appendChild(a);
+  }
+}
+function drawEvents() {
+  var box = $("events"); clear(box);
+  if (!D.events.length) { box.appendChild(el("div", "empty", "イベントはまだ登録されていません。Notion の「イベント」DB に追加してください。")); return; }
+  D.events.slice().sort(function (a, b) { return (a.date || "~").localeCompare(b.date || "~"); }).forEach(function (e) {
+    var c = el("div", "card");
+    c.appendChild(el("h3", "", e.name));
+    c.appendChild(el("div", "note", "開催: " + (e.date || "未定") + (e.date_end ? " 〜 " + e.date_end : "") + (e.apply_deadline ? "　申込締切: " + e.apply_deadline : "")));
+    var chips = el("div"); chips.appendChild(el("span", "chip", e.status || "状態未設定"));
+    (e.kind ? e.kind.split(",") : []).forEach(function (k) { chips.appendChild(el("span", "chip", k)); });
+    link(chips, "詳細ページ", e.page);
+    c.appendChild(chips);
+    var ts = D.tasks.filter(function (t) { return t.event_id === e.id; }).sort(function (a, b) { return (a.due || "~").localeCompare(b.due || "~"); });
+    if (ts.length) {
+      var ul = el("ul");
+      ts.forEach(function (t) {
+        var li = el("li", isDone(t) ? "done" : "");
+        li.appendChild(el("span", "", (isDone(t) ? "✓ " : "□ ") + t.name));
+        li.appendChild(el("span", "note", t.due || "期限未設定"));
+        ul.appendChild(li);
+      });
+      c.appendChild(ul);
+    }
+    box.appendChild(c);
+  });
+}
+
+/* ---- 今後のタスク ---- */
+var tpage = 0;
+function drawTasks() {
+  var box = $("tasks"); clear(box);
+  var list = D.tasks.filter(function (t) { return !isDone(t); })
+    .sort(function (a, b) { return (a.due || "~").localeCompare(b.due || "~"); });
+  if (!list.length) { box.appendChild(el("div", "empty", "未完了のタスクはありません。")); $("tinfo").textContent = ""; return; }
+  var pages = Math.ceil(list.length / PAGE);
+  if (tpage >= pages) tpage = pages - 1;
+  if (tpage < 0) tpage = 0;
+  var ul = el("ul");
+  list.slice(tpage * PAGE, tpage * PAGE + PAGE).forEach(function (t) {
+    var li = el("li");
+    li.appendChild(el("span", "", t.name + (t.step ? "（" + t.step + "）" : "")));
+    li.appendChild(el("span", "note", t.due || "期限未設定"));
+    ul.appendChild(li);
+  });
+  box.appendChild(ul);
+  $("tinfo").textContent = (tpage + 1) + " / " + pages + "（" + list.length + " 件）";
+}
+$("tprev").addEventListener("click", function () { tpage--; drawTasks(); });
+$("tnext").addEventListener("click", function () { tpage++; drawTasks(); });
+
+tiles(); drawChart(); drawCal(); drawEvents(); drawTasks();
+})();
+</script>
+</body>
+</html>

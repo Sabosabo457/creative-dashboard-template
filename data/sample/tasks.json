@@ -1,0 +1,134 @@
+[
+ {
+  "id": "t1",
+  "name": "構想",
+  "category": "イベント準備",
+  "status": "未着手",
+  "priority": "",
+  "due": "2026-12-14",
+  "event_id": "e1",
+  "step": "構想",
+  "page": ""
+ },
+ {
+  "id": "t2",
+  "name": "下書き",
+  "category": "イベント準備",
+  "status": "未着手",
+  "priority": "",
+  "due": "2026-12-14",
+  "event_id": "e1",
+  "step": "下書き",
+  "page": ""
+ },
+ {
+  "id": "t3",
+  "name": "制作",
+  "category": "イベント準備",
+  "status": "未着手",
+  "priority": "",
+  "due": "2026-12-14",
+  "event_id": "e1",
+  "step": "制作",
+  "page": ""
+ },
+ {
+  "id": "t4",
+  "name": "仕上げ",
+  "category": "イベント準備",
+  "status": "未着手",
+  "priority": "",
+  "due": "2026-12-14",
+  "event_id": "e1",
+  "step": "仕上げ",
+  "page": ""
+ },
+ {
+  "id": "t5",
+  "name": "申込",
+  "category": "イベント準備",
+  "status": "完了",
+  "priority": "",
+  "due": "2026-10-20",
+  "event_id": "e1",
+  "step": "申込",
+  "page": ""
+ },
+ {
+  "id": "t6",
+  "name": "提出",
+  "category": "イベント準備",
+  "status": "未着手",
+  "priority": "",
+  "due": "2026-12-14",
+  "event_id": "e1",
+  "step": "提出",
+  "page": ""
+ },
+ {
+  "id": "t7",
+  "name": "構想",
+  "category": "イベント準備",
+  "status": "未着手",
+  "priority": "",
+  "due": "2027-01-30",
+  "event_id": "e2",
+  "step": "構想",
+  "page": ""
+ },
+ {
+  "id": "t8",
+  "name": "制作",
+  "category": "イベント準備",
+  "status": "未着手",
+  "priority": "",
+  "due": "2027-01-30",
+  "event_id": "e2",
+  "step": "制作",
+  "page": ""
+ },
+ {
+  "id": "t9",
+  "name": "申込",
+  "category": "イベント準備",
+  "status": "未着手",
+  "priority": "",
+  "due": "2026-12-25",
+  "event_id": "e2",
+  "step": "申込",
+  "page": ""
+ },
+ {
+  "id": "t10",
+  "name": "提出",
+  "category": "イベント準備",
+  "status": "未着手",
+  "priority": "",
+  "due": "2027-01-30",
+  "event_id": "e2",
+  "step": "提出",
+  "page": ""
+ },
+ {
+  "id": "t11",
+  "name": "サンプルのタスク（週内）",
+  "category": "",
+  "status": "進行中",
+  "priority": "",
+  "due": "2026-11-02",
+  "event_id": "",
+  "step": "",
+  "page": ""
+ },
+ {
+  "id": "t12",
+  "name": "サンプルのタスク（来週）",
+  "category": "",
+  "status": "進行中",
+  "priority": "",
+  "due": "2026-11-08",
+  "event_id": "",
+  "step": "",
+  "page": ""
+ }
+]

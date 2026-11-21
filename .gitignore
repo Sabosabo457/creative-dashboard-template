@@ -1,0 +1,16 @@
+# ===== 個人情報・認証情報（絶対にコミットしない） =====
+.env
+.env.*
+!.env.example
+data/real/
+data/snapshot*
+out/
+config/denylist.local.txt
+# 自分用の上書き設定（settings.local.json / schema.local.json など）
+*.local.*
+
+# ===== その他 =====
+__pycache__/
+*.pyc
+.DS_Store
+node_modules/

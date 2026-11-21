@@ -1,0 +1,35 @@
+{
+  "_comment": "Notion 側の DB 名・列名。自分の Notion に合わせて直す場合は、このファイルではなく config/schema.local.json（Git 管理外）に、変えたい項目だけ書く。",
+  "db_names": {
+    "daily": "日次ログ",
+    "events": "イベント",
+    "tasks": "Tasks"
+  },
+  "daily": {
+    "title": "名前",
+    "date": "日付",
+    "state": "進捗",
+    "kind": "種別",
+    "note": "内容",
+    "work": "作品",
+    "state_map": { "あり": "進捗あり", "なし（お休み）": "休み" },
+    "kind_map": { "ほか": "その他" }
+  },
+  "events": {
+    "title": "イベント名",
+    "date": "開催日",
+    "apply_open": "申込開始日",
+    "apply_deadline": "申込締切日",
+    "status": "状態",
+    "kind": "区分"
+  },
+  "tasks": {
+    "title": "名前",
+    "category": "カテゴリ",
+    "status": "ステータス",
+    "priority": "優先度",
+    "due": "期限",
+    "event": "イベント",
+    "step": "工程"
+  }
+}

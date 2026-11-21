@@ -1,0 +1,28 @@
+{
+  "_comment": "テンプレートが期待する Notion の列の仕様（利用者は編集しない）。列の『名前』は schema.json 側。required=true の列が無い／種類が違うと、更新を止めて報告する。false の列は警告して続行する。",
+  "daily": {
+    "title": { "types": ["title"], "required": false },
+    "date": { "types": ["date"], "required": true },
+    "state": { "types": ["select", "status"], "required": true },
+    "kind": { "types": ["multi_select"], "required": false },
+    "note": { "types": ["rich_text"], "required": false },
+    "work": { "types": ["rich_text", "select"], "required": false }
+  },
+  "events": {
+    "title": { "types": ["title"], "required": true },
+    "date": { "types": ["date"], "required": true },
+    "apply_open": { "types": ["date"], "required": false },
+    "apply_deadline": { "types": ["date"], "required": false },
+    "status": { "types": ["select", "status"], "required": true },
+    "kind": { "types": ["multi_select"], "required": false }
+  },
+  "tasks": {
+    "title": { "types": ["title"], "required": true },
+    "category": { "types": ["select"], "required": false },
+    "status": { "types": ["status", "select"], "required": true },
+    "priority": { "types": ["select"], "required": false },
+    "due": { "types": ["date"], "required": false },
+    "event": { "types": ["relation"], "required": false },
+    "step": { "types": ["select"], "required": false }
+  }
+}

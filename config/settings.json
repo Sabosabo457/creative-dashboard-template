@@ -1,0 +1,11 @@
+{
+  "week_start": "monday",
+  "weekly_threshold": 3,
+  "event_prep_days_before": 15,
+  "done_values": ["完了", "完了！"],
+  "tasks_page_size": 10,
+  "include_text": false,
+  "max_text_length": 300,
+  "include_page_urls": false,
+  "anonymize_ids": true
+}
