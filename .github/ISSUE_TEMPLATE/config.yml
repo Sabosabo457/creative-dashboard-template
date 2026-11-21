@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 使い方の手順（まずここを見てください）
+    url: https://github.com/Sabosabo457/creative-dashboard-template/blob/main/manual/README.md
+    about: マニュアルの目次です。困ったときの対処は manual/01-manual.md と manual/10-chatgpt-guide.md にあります。

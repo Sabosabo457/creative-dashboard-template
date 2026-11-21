@@ -1,0 +1,45 @@
+name: 質問・不具合の報告
+description: うまく動かないとき、手順が分からないときに使います。
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 先にお読みください
+        **この画面は誰でも見られます。次のものは、絶対に書かない・貼らないでください。**
+        - Notion のページや DB の URL、トークン（`secret_` や `ntn_` で始まる文字列）、DB の ID
+        - 作品名・イベント名・タスク名・日次ログの内容などの、実際のデータ
+        - 実際のデータで作った画面（`index.html`）のスクリーンショット
+        - メールアドレス、本名、住所など
+
+        エラーの文を貼るときは、上のものが入っていないか確認してから貼ってください。分からないときは、「（伏せました）」と書いて構いません。
+  - type: dropdown
+    id: route
+    attributes:
+      label: どの方法で使っていますか
+      options:
+        - Notion だけ（段階 0）
+        - ChatGPT に今週の進捗を聞く（段階 1）
+        - ChatGPT でまとめファイルから画面を作る（段階 2）
+        - PC のスクリプト（動線 P）
+        - そのほか
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: まとめファイルの版（分かれば）
+      description: 例 1.2.2。Notion のサンプルページの「お知らせ」で、最新版を確認できます。
+  - type: textarea
+    id: what
+    attributes:
+      label: 何をして、どうなりましたか
+      description: 「更新を止めました」「注意:」が出たときは、その文（個人情報を伏せたもの）も書いてください。
+    validations:
+      required: true
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: 確認
+      options:
+        - label: URL・トークン・作品名・メールアドレスなどの個人情報を書いていません
+          required: true
