@@ -13,7 +13,8 @@
    - 「更新の履歴」の先頭に 1 件足す（日付・版・何が変わったか・**入れ替えが必要か**）。
    - ダウンロードのリンクは、次の固定のもの。変えない。
      `https://github.com/Sabosabo457/creative-dashboard-template/blob/main/chatgpt-bundle.txt`
-7. 必要なら、`manual/10-chatgpt-guide.md` と Notion の使い方マニュアル 2-4 の説明を直す。
+7. Notion のサンプルページの「ライセンス（MIT）」ページを、GitHub の `LICENSE` に合わせて書き直す（「最新の版」の番号と、ライセンス全文。変更がなくても、版番号は合わせる）。
+8. 必要なら、`manual/10-chatgpt-guide.md` と Notion の使い方マニュアル 2-4 の説明を直す。
 
 ## 決まり
 - お知らせには、**入れ替えが必要か**を必ず書く。不具合の修正は「入れ替えてください」、機能の追加は「任意」。
