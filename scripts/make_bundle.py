@@ -18,7 +18,7 @@ FILES = [
     "scripts/_cfg.py", "scripts/make_datasets.py", "scripts/build.py", "scripts/make_sample.py",
     "template/dashboard.html", "reference/snapshot-format.md",
 ]
-HEADER = """# 創作ダッシュボード ChatGPT 用まとめファイル
+HEADER = """# 創作ダッシュボード ChatGPT 用まとめファイル（版 %s）
 これは、テンプレートの必要なファイルを 1 つにまとめた文章ファイルです。
 各ファイルは、`=== FILE: パス ===` の行から始まり、次の `=== FILE:` の行（または `=== END ===`）の直前までが中身です。
 ChatGPT に渡して、この区切りのとおりにファイルへ復元させます（中身は 1 文字も変えない）。
@@ -28,7 +28,8 @@ ChatGPT に渡して、この区切りのとおりにファイルへ復元させ
 
 def build(root=None):
     root = pathlib.Path(root) if root else ROOT
-    parts = [HEADER]
+    version = (root / "VERSION").read_text(encoding="utf-8").strip()
+    parts = [HEADER % version]
     for rel in FILES:
         text = (root / rel).read_text(encoding="utf-8")
         if not text.endswith("\n"):
