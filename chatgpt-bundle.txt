@@ -91,7 +91,7 @@ AI ごとの違いは `manual/03-connectors.md` と `manual/04-ai-prompts.md` �
 - 報告は事実だけ。手順の羅列や自画自賛はしない。
 - 変更したら `CHANGELOG.md` に 1 行追記する（例: `- 2026-10-30: 〇〇を修正`）。
 === FILE: VERSION ===
-1.2.2
+1.3.0
 === FILE: config/columns.json ===
 {
   "_comment": "テンプレートが期待する Notion の列の仕様（利用者は編集しない）。列の『名前』は schema.json 側。required=true の列が無い／種類が違うと、更新を止めて報告する。false の列は警告して続行する。",
@@ -607,12 +607,27 @@ li{padding:3px 0;border-top:1px solid var(--line);display:flex;gap:8px;justify-c
 li.done{color:var(--mut);text-decoration:line-through}
 .empty{color:var(--mut);padding:12px 0}
 input[type=range]{vertical-align:middle}
+.upd{margin:0 0 12px}
+.upd button{border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:8px;padding:6px 12px;font:inherit;cursor:pointer}
+.upd .box{display:none;margin-top:8px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px}
+.upd .box.on{display:block}
+.upd textarea{width:100%;height:84px;margin:6px 0;font:inherit;font-size:13px;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:6px}
+.upd .mut{color:var(--mut);font-size:12px;margin:4px 0 0}
 </style>
 </head>
 <body>
 <div id="app">
   <h1>創作ダッシュボード</h1>
   <div class="sub" id="sub"></div>
+  <div class="upd">
+    <button type="button" id="updbtn">更新する</button>
+    <div class="box" id="updbox">
+      <div>この画面は、Notion を読み直せません。更新は ChatGPT のチャットで行います。下の文をコピーして、<b>このチャットの入力欄に貼って送ってください</b>。</div>
+      <textarea id="updtxt" readonly></textarea>
+      <button type="button" id="updcopy">文をコピーする</button> <span id="updmsg" class="mut"></span>
+      <div class="mut">新しい結果は、新しい index.html として返ってきます。</div>
+    </div>
+  </div>
   <div class="tabs" id="tabs">
     <button data-tab="p" class="on">進捗</button>
     <button data-tab="c">カレンダー</button>
@@ -692,6 +707,25 @@ function isDone(t) { return DONE.indexOf(t.status) >= 0; }
   if (c) s += "　日次 " + c.daily_days + " 日（" + c.daily_rows + " 件）・イベント " + c.events + "・タスク " + c.tasks;
   if (!D.ctx.sample) s += "　※非公開で使ってください";
   $("sub").textContent = s;
+})();
+
+/* ---- 更新ボタン: Notion は読めないので、ChatGPT に送る依頼文をコピーするだけ（通信なし） ---- */
+(function () {
+  var T = "Notion を更新しました。もう一度、動線 W に従って最初から更新してください。\n前回の取得結果は使わず、Notion から読み直してください。\n作った out/index.html は、ダウンロードできるファイルとして、返答の最後に必ず添えてください。結果（件数・「注意:」）は省略せずに教えてください。";
+  var box = $("updbox"), ta = $("updtxt"), msg = $("updmsg");
+  ta.value = T;
+  $("updbtn").addEventListener("click", function () { box.classList.toggle("on"); });
+  $("updcopy").addEventListener("click", function () {
+    var ok = false;
+    ta.focus(); ta.select();
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    if (!ok && navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(T).then(function () { msg.textContent = "コピーしました。"; },
+        function () { msg.textContent = "コピーできませんでした。上の文を選んで、手でコピーしてください。"; });
+      return;
+    }
+    msg.textContent = ok ? "コピーしました。" : "コピーできませんでした。上の文を選んで、手でコピーしてください。";
+  });
 })();
 
 /* ---- タブ ---- */
